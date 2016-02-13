@@ -61,10 +61,19 @@ function put_spacing() {
   echo $spacing
 }
 
-function prompt_char() {
-  echo "➤"
+# Status:
+# - was there an error
+# - am I root
+# - are there background jobs?
+build_prompt() {
+  RETVAL=$?
+  local symbols
+  [[ $RETVAL -ne 0 ]] && symbols="$fg[red]✘"
+  [[ $UID -eq 0 ]] && symbols="$symbols$fg[yellow]⚡"
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols="$symbols$fg[cyan]⚙"
+  [ -n "$symbols" ] && symbols="$symbols "
+  echo "$fg[cyan]$location $fg[yellow]$(get_pwd)$(put_spacing)$(git_prompt_info) $fg[cyan]$(get_time)
+$reset_color$symbols$reset_color➤"
 }
 
-PROMPT='
-$fg[cyan]$location $fg[yellow]$(get_pwd)$(put_spacing)$(git_prompt_info) $fg[cyan]$(get_time)
-$reset_color$(prompt_char) '
+PROMPT='$(build_prompt) '
