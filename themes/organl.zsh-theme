@@ -6,10 +6,14 @@ cloud=☁
 atom=⚛
 neptune=♆
 airplane=✈︎
+heart=♥︎
 
 case `hostname -s` in
     "f45c89a3afa7") 
         location=$airplane
+        ;;
+    "a82066391a90")
+        location=atom
         ;;
     "dev-dsk-przasnys-m4xl-i-34f5ceef") 
         location=$cloud
@@ -19,6 +23,9 @@ case `hostname -s` in
         ;;
     "hackintosh") 
         location=$neptune
+        ;;
+    "soupnazi") 
+        location=$heart
         ;;
     *)
         location="¿"
