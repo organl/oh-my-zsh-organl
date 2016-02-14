@@ -13,7 +13,7 @@ case `hostname -s` in
         location=$airplane
         ;;
     "a82066391a90")
-        location=atom
+        location=$atom
         ;;
     "dev-dsk-przasnys-m4xl-i-34f5ceef") 
         location=$cloud
