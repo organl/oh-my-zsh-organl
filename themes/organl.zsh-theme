@@ -7,6 +7,9 @@ atom=⚛
 neptune=♆
 airplane=✈︎
 heart=♥︎
+diamonds=❖
+yinyang=☯
+flag=⚐
 
 case `hostname -s` in
     "f45c89a3afa7") 
@@ -17,6 +20,15 @@ case `hostname -s` in
         ;;
     "dev-dsk-przasnys-m4xl-i-34f5ceef") 
         location=$cloud
+        ;;
+    "newman")
+        location=$diamonds
+        ;;
+    "motion")
+        location=$yinyang
+        ;;
+    "capture")
+        location=$flag
         ;;
     "kramer") 
         location=$earth
