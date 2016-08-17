@@ -10,6 +10,7 @@ heart=♥︎
 diamonds=❖
 yinyang=☯
 flag=⚐
+node=☊
 
 case `hostname -s` in
     "f45c89a3afa7") 
@@ -39,6 +40,9 @@ case `hostname -s` in
     "soupnazi") 
         location=$heart
         ;;
+    "SEA-9901942132")
+        location=$node
+	;;
     *)
         location="¿"
         ;;
