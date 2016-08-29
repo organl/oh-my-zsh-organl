@@ -12,7 +12,7 @@ yinyang=☯
 flag=⚐
 node=☊
 
-case `hostname -s` in
+case `hostname -s | tr '[:upper:]' '[:lower:]'` in
     "f45c89a3afa7") 
         location=$airplane
         ;;
