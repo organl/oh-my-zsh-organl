@@ -2,6 +2,7 @@
 
 sun=☉
 earth=♁
+ground=⏚
 cloud=☁
 atom=⚛
 neptune=♆
@@ -11,8 +12,15 @@ diamonds=❖
 yinyang=☯
 flag=⚐
 node=☊
+star=★
 
 case `hostname -s | tr '[:upper:]' '[:lower:]'` in
+    "farfel")
+        location=$star
+        ;;
+    "minecraft")
+        location=$ground
+        ;;
     "f45c89a3afa7") 
         location=$airplane
         ;;
