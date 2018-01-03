@@ -21,7 +21,7 @@ case `hostname -s | tr '[:upper:]' '[:lower:]'` in
     "minecraft")
         location=$ground
         ;;
-    "f45c89a3afa7") 
+    "186590cbd4fb") 
         location=$airplane
         ;;
     "a82066391a90")
