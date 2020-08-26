@@ -1,60 +1,34 @@
 #!/bin/zsh
 
-sun=☉
-earth=♁
-ground=⏚
-cloud=☁
-atom=⚛
-neptune=♆
-airplane=✈︎
-heart=♥︎
-diamonds=❖
-yinyang=☯
-flag=⚐
-node=☊
-star=★
+# If a script exists here, use it to deduce hostname symbol
+[ -f ~/.zsh/bin/hostname-symbol ] && location=`~/.zsh/bin/hostname-symbol`
 
-case `hostname -s | tr '[:upper:]' '[:lower:]'` in
-    "farfel")
-        location=$star
-        ;;
-    "minecraft")
-        location=$ground
-        ;;
-    "186590cbd4fb") 
-        location=$airplane
-        ;;
-    "a82066391a90")
-        location=$atom
-        ;;
-    "dev-dsk-przasnys-m4xl-i-34f5ceef") 
-        location=$cloud
-        ;;
-    "newman")
-        location=$diamonds
-        ;;
-    "motion")
-        location=$yinyang
-        ;;
-    "capture")
-        location=$flag
-        ;;
-    "kramer") 
-        location=$earth
-        ;;
-    "hackintosh") 
-        location=$neptune
-        ;;
-    "soupnazi") 
-        location=$heart
-        ;;
-    "SEA-9901942132")
-        location=$node
-	;;
-    *)
-        location="¿"
-        ;;
-esac
+# location will be zero length if script did not work above, use the following code as example
+if [ -z "$location" ]; then
+  sun=☉
+  earth=♁
+  ground=⏚
+  cloud=☁
+  unknown="¿"
+
+  case `hostname -s | tr '[:upper:]' '[:lower:]'` in
+      "hostname-1")
+          location=$sun
+          ;;
+      "hostname-2")
+          location=$earth
+          ;;
+      "hostname-3") 
+          location=$ground
+          ;;
+      "hostname-4")
+          location=$cloud
+          ;;
+      *)
+          location=$unknown
+          ;;
+  esac
+fi
 
 function get_pwd() {
   echo "${PWD/$HOME/~}"
