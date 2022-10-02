@@ -1,8 +1,4 @@
 #!/bin/zsh
-plugins=(
-  git
-  docker
-)
 
  C="\e[0m"       # 0  = clear codes
  O="\e[1m"       # 1  = turn on bOld
@@ -35,59 +31,103 @@ function get_pwd() {
   echo "${PWD/$HOME/~}"
 }
 
-typeset -A moy
-# Store decimal value of the starting unicode character
-MOY_1=$(echo "obase=10; ibase=16; 32C0" | bc)
-# Iterate over months of year
-for i in {1..12}; do
-  # MOY_V = 1-1+1, 1-1+2, ... , 1-1+12
-  MOY_V=$(expr ${MOY_1} - 1 + ${i} )
-  # Convert back to base16
-  dom[i]=$(echo "obase=16; ibase=10; ${MOY_V}" | bc)
-done
-typeset -A dom
-# Store decimal value of the starting unicode character
-DOM_1=$(echo "obase=10; ibase=16; 33E0" | bc)
-# Iterate over days of month
-for i in {1..31}; do
-  # DOM_V = 1-1+1, 1-1+2, ... , 1-1+31
-  DOM_V=$(expr ${DOM_1} - 1 + ${i} )
-  # Convert back to base16
-  dom[i]=$(echo "obase=16; ibase=10; ${DOM_V}" | bc)
-done
-typeset -A hod
-# Store decimal value of the starting unicode character
-HOUR_0=$(echo "obase=10; ibase=16; 33E0" | bc)
-# Iterate over hours of day
-for i in {0..24}; do
-  # HOUR_V = 0-1+1, 0-1+2, ... , 0-1+24
-  HOUR_V=$(expr ${HOUR_0} - 1 + ${i} )
-  # Convert back to base16
-  hod[i]=$(echo "obase=16; ibase=10; ${HOUR_V}" | bc)
-done
-
-function get_time() {
-  M=$moy[$(date -u +"%m")]
-  D=$dom[$(date -u +"%d")]
-  H=$hod[$(date -u +"%H")]
-  date -u +"${M}${D}${H}%M:%SZ"
+function get_infograph() {
+  CODE=${1}
+  FMT=${2}
+  OFFSET=${3}
+  VAL=$(date -u +"${FMT}")
+  DEC=$(echo "obase=10; ibase=16; ${CODE}" | bc)
+  CODE_DEC=$(expr ${DEC} - ${OFFSET} + ${VAL})
+  CODE_HEX=$(echo "obase=16; ibase=10; ${CODE_DEC}" | bc)
+  echo "\u${CODE_HEX}"
 }
 
-ZSH_THEME_GIT_PROMPT_PREFIX="("
-ZSH_THEME_GIT_PROMPT_SUFFIX=")${C}"
-ZSH_THEME_GIT_PROMPT_SEPARATOR="|"
-ZSH_THEME_GIT_PROMPT_BRANCH="%{$fg_bold[magenta]%}"
-ZSH_THEME_GIT_PROMPT_STAGED="%{$fg[red]%}%{●%G%}"
-ZSH_THEME_GIT_PROMPT_CONFLICTS="%{$fg[red]%}%{✖%G%}"
-ZSH_THEME_GIT_PROMPT_CHANGED="%{$fg[blue]%}%{✚%G%}"
-ZSH_THEME_GIT_PROMPT_BEHIND="%{↓%G%}"
-ZSH_THEME_GIT_PROMPT_AHEAD="%{↑%G%}"
-ZSH_THEME_GIT_PROMPT_UNTRACKED="%{…%G%}"
-ZSH_THEME_GIT_PROMPT_CLEAN="%{$fg_bold[green]%}%{✔%G%}"
+function get_moy() {
+  # ㋀
+  get_infograph "32C0" "%m" "1"
+}
 
-function git_prompt_info() {
-  ref=$(git symbolic-ref HEAD 2> /dev/null) || return
-  echo "$(parse_git_dirty)$ZSH_THEME_GIT_PROMPT_PREFIX$(current_branch)$ZSH_THEME_GIT_PROMPT_SUFFIX"
+function get_dom() {
+  # ㏠
+  get_infograph "33E0" "%d" "1"
+}
+
+function get_hod() {
+  # ㍘
+  get_infograph "3358" "%H" "0"
+}
+
+function get_time() {
+  date +"$(get_moy)$(get_dom)●%H:%M:%S"
+  #date +"%Y-%m-%dT%H:%M:%S"
+}
+
+function hidden_utc() {
+  DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+  echo -n "%{$fg[black]%}♁${DATE}♁%{$reset_color%} "
+}
+
+function hidden_time() {
+  DATE=$(date +"%Y-%m-%dT%H:%M:%S")
+  echo -n "%{$fg[black]%}↓${DATE}↓%{$reset_color%}"
+}
+
+function get_spacing() {
+  local left="${0}"
+  local right"${1}"
+  
+
+  local termwidth
+  (( termwidth = ${COLUMNS} - ${#$(left)} - ${git} - 1 - ${#$(get_time)} ))
+
+  local sp=""
+  for i in {1..$termwidth}; do
+      sp="${sp}X"
+  done
+  echo $sp
+}
+
+# Usage: prompt-length TEXT [COLUMNS]
+#
+# If you run `print -P TEXT`, how many characters will be printed
+# on the last line?
+#
+# Or, equivalently, if you set PROMPT=TEXT with prompt_subst
+# option unset, on which column will the cursor be?
+#
+# The second argument specifies terminal width. Defaults to the
+# real terminal width.
+#
+# Assumes that `%{%}` and `%G` don't lie.
+#
+# Examples:
+#
+#   prompt-length ''            => 0
+#   prompt-length 'abc'         => 3
+#   prompt-length $'abc\nxy'    => 2
+#   prompt-length '❎'          => 2
+#   prompt-length $'\t'         => 8
+#   prompt-length $'\u274E'     => 2
+#   prompt-length '%F{red}abc'  => 3
+#   prompt-length $'%{a\b%Gb%}' => 1
+#   prompt-length '%D'          => 8
+#   prompt-length '%1(l..ab)'   => 2
+#   prompt-length '%(!.a.)'     => 1 if root, 0 if not
+function prompt_length() {
+  emulate -L zsh
+  local COLUMNS=${2:-$COLUMNS}
+  local -i x y=${#1} m
+  if (( y )); then
+    while (( ${${(%):-$1%$y(l.1.0)}[-1]} )); do
+      x=y
+      (( y *= 2 ))
+    done
+    while (( y > x + 1 )); do
+      (( m = x + (y - x) / 2 ))
+      (( ${${(%):-$1%$m(l.x.y)}[-1]} = m ))
+    done
+  fi
+  echo $x
 }
 
 # Status:
@@ -97,16 +137,27 @@ function git_prompt_info() {
 build_prompt() {
   RETVAL=$?
   local symbols
-  [[ $RETVAL -ne 0 ]] && symbols="$fg[red]✘"
-  [[ $UID -eq 0 ]] && symbols="$symbols$fg[yellow]⚡"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols="$symbols$fg[cyan]⚙"
+  [[ $RETVAL -ne 0 ]] && symbols="%{$fg[red]%}✘%{$reset_color%}"
+  [[ $UID -eq 0 ]] && symbols="$symbols%{$fg[yellow]%}⚡%{$reset_color%}"
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols="$symbols%{$fg[cyan]%}⚙%{$reset_color%}"
   [ -n "$symbols" ] && symbols="$symbols "
-  echo "\
-${c}$location${C} \
-${iK}$(get_time)${C} \
-${y}$(get_pwd)${C} \
-$(git_prompt_info) 
-$symbols➤"
+  LEFT="\
+%{$fg[cyan]%}$location%{$reset_color%} \
+%{$fg_bold[black]%}$(get_time)%{$reset_color%} \
+%{$fg[yellow]%}$(get_pwd)%{$reset_color%}"
+  OPTIONALS=($(hidden_time) $(hidden_utc))
+  RIGHT="$(git_super_status)"
+
+  PSEUDO_PROMPT="$LEFT $OPTIONALS$RIGHT"
+  promptwidth=$(prompt_length "$PSEUDO_PROMPT")
+  padamount=0
+  (( padamount = ${COLUMNS} - ${promptwidth} ))
+  local PAD=""
+  for i in {1..$padamount}; do
+      PAD="${PAD} "
+  done
+  echo -n "${LEFT} ${OPTIONALS}${PAD}${RIGHT}\n$symbols➤"
 }
 
 PROMPT='$(build_prompt) '
+RPROMPT=''
