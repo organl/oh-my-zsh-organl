@@ -72,14 +72,24 @@ function hidden_time() {
   echo -n "%{$fg[black]%}↓${DATE}↓%{$reset_color%}"
 }
 
+fucntion cookie_expiration() {
+  local cookie_file="${HOME}/.$(echo -e '\x6d\x69\x64\x77\x61\x79')/cookie"
+  if [ -f "${cookie_file}" ]; then
+    local remaining=$(expr $(awk '/session/ { print $5 }' ${cookie_file}) - $(date +%s))
+    local display=$(date -r ${remaining} -u +%H:%M)
+    if [ ${remaining} -lt 600 ]; then
+      echo "(M%{$fg_bold[red]%}${display}%{$reset_color%})"
+    else
+      echo "%{$fg_bold[black]%}(M${display})%{$reset_color%}"
+    fi
+  fi
+}
+
 function get_spacing() {
   local left="${0}"
   local right"${1}"
-  
-
   local termwidth
   (( termwidth = ${COLUMNS} - ${#$(left)} - ${git} - 1 - ${#$(get_time)} ))
-
   local sp=""
   for i in {1..$termwidth}; do
       sp="${sp}X"
@@ -146,7 +156,7 @@ build_prompt() {
 %{$fg_bold[black]%}$(get_time)%{$reset_color%} \
 %{$fg[yellow]%}$(get_pwd)%{$reset_color%}"
   OPTIONALS=($(hidden_time) $(hidden_utc))
-  RIGHT="$(git_super_status)"
+  RIGHT="$(cookie_expiration) $(git_super_status)"
 
   PSEUDO_PROMPT="$LEFT $OPTIONALS$RIGHT"
   promptwidth=$(prompt_length "$PSEUDO_PROMPT")
