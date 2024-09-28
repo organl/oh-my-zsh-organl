@@ -97,6 +97,13 @@ function get_spacing() {
   echo $sp
 }
 
+# Add this before setting the prompt variable
+function venv() {
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+      echo "◇ $(basename $VIRTUAL_ENV) ◇"
+    fi
+}
+
 # Usage: prompt-length TEXT [COLUMNS]
 #
 # If you run `print -P TEXT`, how many characters will be printed
@@ -152,8 +159,9 @@ build_prompt() {
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols="$symbols%{$fg[cyan]%}⚙%{$reset_color%}"
   [ -n "$symbols" ] && symbols="$symbols "
   LEFT="\
-%{$fg[cyan]%}$location%{$reset_color%} \
+%{$fg_bold[cyan]%}$location%{$reset_color%} \
 %{$fg_bold[black]%}$(get_time)%{$reset_color%} \
+%{$fg[cyan]%}$(venv)%{$reset_color%} \
 %{$fg[yellow]%}$(get_pwd)%{$reset_color%}"
   OPTIONALS=($(hidden_time) $(hidden_utc))
   RIGHT="$(cookie_expiration) $(git_super_status)"
