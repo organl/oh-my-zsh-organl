@@ -58,18 +58,18 @@ function get_hod() {
 }
 
 function get_time() {
-  date +"$(get_moy)$(get_dom)●%H:%M:%S"
-  #date +"%Y-%m-%dT%H:%M:%S"
+  #date +"$(get_moy)$(get_dom)●%H:%M:%S"
+  date +"%Y-%m-%dT%H:%M:%S"
 }
 
 function hidden_utc() {
   DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  echo -n "%{$fg[black]%}♁${DATE}♁%{$reset_color%} "
+  #echo -n "%{$fg[black]%}♁${DATE}♁%{$reset_color%} "
 }
 
 function hidden_time() {
   DATE=$(date +"%Y-%m-%dT%H:%M:%S")
-  echo -n "%{$fg[black]%}↓${DATE}↓%{$reset_color%}"
+  #echo -n "%{$fg[black]%}↓${DATE}↓%{$reset_color%}"
 }
 
 fucntion cookie_expiration() {
