@@ -159,6 +159,8 @@ build_prompt() {
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols="$symbols%{$fg[cyan]%}⚙%{$reset_color%}"
   [ -n "$symbols" ] && symbols="$symbols "
   LEFT="\
+%{$fg_bold[white]%}${(U)USER[1]}%{$reset_color%}\
+%{$fg_bold[black]%}@%{$reset_color%}\
 %{$fg_bold[cyan]%}$location%{$reset_color%} \
 %{$fg_bold[black]%}$(get_time)%{$reset_color%} \
 %{$fg[cyan]%}$(venv)%{$reset_color%} \
